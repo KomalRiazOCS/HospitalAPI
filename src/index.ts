@@ -1,18 +1,30 @@
 import express from 'express';
 import { connectDB } from './startup/db';
 import { configureApp } from './startup/configuration';
-
 import { configureProd } from './startup/prod';
 import { configureRoutes } from './startup/routes';
+import http from 'http';
 
-const app = express();
-configureApp(app);
-connectDB();
+let testServer: http.Server;
 
-configureProd(app);
-configureRoutes(app);
+async function startServer() {
+    const app = express();
+    try {
+        await connectDB(); 
+        configureApp(app);
+        configureProd(app);
+        configureRoutes(app);
 
-const port = process.env.PORT || 3000;
-const server = app.listen(port, () => console.log(`Listening on port ${port}...`));
+        const port = process.env.PORT || 3000;
+        const server = app.listen(port, () => console.log(`Listening on port ${port}...`));
 
-export { server};
+        testServer = server;
+        return server; 
+    } catch (error) {
+        console.error('Error starting the server:', error);
+        process.exit(1); 
+    }
+}
+
+startServer();
+export { testServer };

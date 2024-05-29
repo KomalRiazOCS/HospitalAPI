@@ -1,11 +1,12 @@
 import mongoose, { Schema, Document } from 'mongoose';
-import Joi from 'joi';
+import { FeeStatus } from '../types/appointment';
+import validateAppointment from '../validations/appointment';
 
 interface AppointmentDocument extends Document {
     startTime: Date;
     endTime: Date;
     description: string;
-    feeStatus: 'USD' | 'EUR' | 'Bitcoin' | 'unpaid';
+    feeStatus: FeeStatus;
     amount: string;
 }
 
@@ -24,7 +25,7 @@ const appointmentSchema: Schema<AppointmentDocument> = new Schema({
     },
     feeStatus: {
         type: String,
-        enum: ['USD', 'EUR', 'Bitcoin', 'unpaid'],
+        enum: Object.values(FeeStatus),
         required: true
     },
     amount: {
@@ -33,14 +34,6 @@ const appointmentSchema: Schema<AppointmentDocument> = new Schema({
     }
 });
 
-const AppointmentDocument = mongoose.model<AppointmentDocument>('Appointment', appointmentSchema);
+const Appointment = mongoose.model<AppointmentDocument>('Appointment', appointmentSchema);
 
-const validateAppointment = Joi.object().keys({
-    startTime: Joi.date().required(),
-    endTime: Joi.date().required(),
-    description: Joi.string().required(),
-    feeStatus: Joi.string().valid('USD', 'EUR', 'Bitcoin', 'unpaid').required(),
-    amount: Joi.string().required()
-    });
-
-export { appointmentSchema, AppointmentDocument, validateAppointment };
+export { appointmentSchema, AppointmentDocument, Appointment,  validateAppointment };

@@ -1,10 +1,11 @@
 import mongoose, { Schema, Document } from 'mongoose';
-import Joi from 'joi';
 import { appointmentSchema, AppointmentDocument  } from './appointment';
+import validatePatient from '../validations/patient';
+import { PetType } from '../types/patient';
 
 interface PatientDocument extends Document {
     petName: string;
-    petType: 'cat' | 'dog' | 'bird';
+    petType: PetType;
     ownerName: string;
     ownerAddress: string;
     ownerPhone: string;
@@ -18,7 +19,7 @@ const patientSchema: Schema<PatientDocument> = new Schema({
     },
     petType: {
         type: String,
-        enum: ['cat', 'dog', 'bird'],
+        enum: Object.values(PetType),
         required: true
     },
     ownerName: {
@@ -41,14 +42,4 @@ const patientSchema: Schema<PatientDocument> = new Schema({
 
 const Patient = mongoose.model<PatientDocument>('Patient', patientSchema);
 
-const validatePatient = Joi.object().keys({
-    petName: Joi.string().required(),
-        petType: Joi.string().valid('cat', 'dog', 'bird').required(),
-        ownerName: Joi.string().required(),
-        ownerAddress: Joi.string().required(),
-        ownerPhone: Joi.string().min(11).required(),
-        // Assuming you also want to validate the appointment array
-        appointmentid: Joi.string().required
-    });
-
-export { patientSchema, Patient, validatePatient };
+export { PatientDocument, patientSchema, Patient, validatePatient };
